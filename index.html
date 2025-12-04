@@ -10,59 +10,121 @@ a.download = "tiktok.mp4";
 a.click();
 
 log.textContent = "Download dimulai!";
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<title>TikTok Downloader</title>
+<meta charset="UTF-8">
+<title>TikTok Downloader & MP3</title>
 <style>
-body { font-family: Arial; max-width:600px; margin:40px auto; text-align:center; background:linear-gradient(135deg,#ffdee9 0%,#b5fffc 100%); padding:20px; border-radius:20px;}
-h2 { color:#333; margin-bottom:20px;}
-input { width:80%; padding:12px; border-radius:10px; border:2px solid #555; font-size:16px;}
-button { margin-top:15px; padding:12px 20px; background:#ff4d6d; border:none; border-radius:10px; font-size:16px; color:white; cursor:pointer;}
-button:hover { background:#ff6f8f; }
-#log { margin-top:20px; font-weight:bold;}
+body {
+  font-family: 'Arial', sans-serif;
+  background: #111;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin:0;
+}
+.container {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+h2 {
+  margin-bottom: 20px;
+  color: #ff4d6d;
+}
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #333;
+  background: #222;
+  color: #fff;
+  margin-bottom: 15px;
+}
+button {
+  padding: 12px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+#videoBtn { background: #ff4d6d; color:white;}
+#videoBtn:hover { background: #ff6f8f;}
+#audioBtn { background: #1db954; color:white;}
+#audioBtn:hover { background: #3ee07b;}
+#log {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #fff;
+}
 </style>
 </head>
 <body>
-<h2>TikTok Downloader 🎵</h2>
-<input id="url" placeholder="Tempel URL TikTok..." />
-<br>
-<button id="go">Download</button>
-<div id="log"></div>
+
+<div class="container">
+  <h2>TikTok Downloader 🎵</h2>
+  <input id="url" placeholder="Tempel URL TikTok..." />
+  <br>
+  <button id="videoBtn">Download Video</button>
+  <button id="audioBtn">Download Audio</button>
+  <div id="log"></div>
+</div>
 
 <script>
-document.getElementById("go").onclick = async () => {
+async function fetchTikWM(url){
+  const api = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+  const r = await fetch(api);
+  const data = await r.json();
+  return data.data || null;
+}
+
+async function downloadFile(href, filename){
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  a.click();
+}
+
+document.getElementById("videoBtn").onclick = async () => {
   const url = document.getElementById("url").value.trim();
   const log = document.getElementById("log");
+  if(!url){ log.textContent="URL kosong!"; return;}
+  log.textContent="Memproses video...";
 
-  if(!url){
-    log.textContent="URL tidak boleh kosong!";
-    return;
+  try{
+    const data = await fetchTikWM(url);
+    if(!data?.play){ log.textContent="Video tidak ditemukan"; return; }
+    downloadFile(data.play, "tiktok.mp4");
+    log.textContent="Download video dimulai!";
+  }catch(e){
+    log.textContent="Gagal fetch API";
   }
+};
 
-  log.textContent="Memproses...";
+document.getElementById("audioBtn").onclick = async () => {
+  const url = document.getElementById("url").value.trim();
+  const log = document.getElementById("log");
+  if(!url){ log.textContent="URL kosong!"; return;}
+  log.textContent="Memproses audio...";
 
-  try {
-    const api = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
-    const r = await fetch(api);
-    const data = await r.json();
-
-    if(!data?.data?.play){
-      log.textContent="Video tidak ditemukan!";
-      return;
-    }
-
-    const a = document.createElement("a");
-    a.href = data.data.play;
-    a.download="tiktok.mp4";
-    a.click();
-
-    log.textContent="Download dimulai!";
-  } catch(e){
-    log.textContent="Gagal fetch API (CORS/API down)";
+  try{
+    const data = await fetchTikWM(url);
+    if(!data?.music){ log.textContent="Audio tidak ditemukan"; return; }
+    downloadFile(data.music, "tiktok.mp3");
+    log.textContent="Download audio dimulai!";
+  }catch(e){
+    log.textContent="Gagal fetch API";
   }
 };
 </script>
+
 </body>
 </html>
