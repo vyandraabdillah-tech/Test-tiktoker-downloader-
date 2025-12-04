@@ -1,62 +1,103 @@
-const a = document.createElement("a");
-a.href = data.data.play;
-a.download = "tiktok.mp4";
-a.click();
-
-log.textContent = "Download dimulai!";
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TikTok Downloader</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; background: #f8f9fa; }
-    h1 { text-align: center; }
-    input { width: 100%; padding: 10px; margin: 10px 0; }
-    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-    #log { margin-top: 10px; color: green; }
-  </style>
+<meta charset="utf-8">
+<title>TikTok Downloader 🎵</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin:0;
+  padding:0;
+  font-family: 'Arial', sans-serif;
+  background:#111;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.container {
+  background:#1c1c1c;
+  padding:25px;
+  border-radius:20px;
+  width:90%;
+  max-width:400px;
+  text-align:center;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+h2 {
+  margin-bottom:20px;
+  color:#ff4d6d;
+}
+input {
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:2px solid #555;
+  margin-bottom:15px;
+  background:#222;
+  color:#fff;
+}
+button {
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  margin:5px;
+  font-size:16px;
+  cursor:pointer;
+  transition:0.3s;
+}
+button.video { background:#ff4d6d; color:#fff; }
+button.video:hover { background:#ff6f8f; }
+button.audio { background:#4da6ff; color:#fff; }
+button.audio:hover { background:#7fcfff; }
+#log {
+  margin-top:15px;
+  font-weight:bold;
+  min-height:20px;
+}
+</style>
 </head>
 <body>
-  <h1>TikTok Downloader 🎵</h1>
-  <input type="text" id="url" placeholder="Tempel URL TikTok...">
-  <div>
-    <button onclick="downloadVideo()">Download Video</button>
-    <button onclick="downloadAudio()">Download Audio</button>
-  </div>
-  <div id="log"></div>
+<div class="container">
+<h2>TikTok Downloader</h2>
+<input id="url" placeholder="Tempel URL TikTok (short/long)" />
+<br>
+<button class="video" onclick="download('video')">Download Video MP4</button>
+<button class="audio" onclick="download('audio')">Download Audio MP3</button>
+<div id="log"></div>
+</div>
 
-  <script>
-    async function downloadVideo() {
-      const url = document.getElementById('url').value;
-      const log = document.getElementById('log');
-      log.textContent = "Memproses...";
-      
-      try {
-        const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
-        const data = await res.json();
+<script>
+async function download(type){
+  const url = document.getElementById("url").value.trim();
+  const log = document.getElementById("log");
 
-        if (!data?.data?.play) {
-          log.textContent = "Video tidak ditemukan!";
-          return;
-        }
+  if(!url){ log.textContent="URL kosong!"; return; }
+  log.textContent="Memproses...";
 
-        const a = document.createElement("a");
-        a.href = data.data.play;
-        a.download = "tiktok.mp4";
-        a.click();
-        log.textContent = "Download dimulai!";
-      } catch (err) {
-        log.textContent = "Terjadi kesalahan!";
-        console.error(err);
-      }
-    }
+  try {
+    const api = "https://www.tikwm.com/api/?url=" + encodeURIComponent(url);
+    const res = await fetch(api);
+    const data = await res.json();
 
-    function downloadAudio() {
-      // Implementasi audio bisa serupa
-      alert("Fitur audio sementara belum tersedia.");
-    }
-  </script>
+    if(!data?.data?.play){ log.textContent="Gagal mengambil video!"; return; }
+
+    let link = (type==='video') ? data.data.play : data.data.music;
+    let filename = (type==='video') ? "tiktok.mp4" : "tiktok.mp3";
+
+    if(!link){ log.textContent=`${type.toUpperCase()} tidak tersedia`; return; }
+
+    const a = document.createElement("a");
+    a.href = link;
+    a.download = filename;
+    a.click();
+
+    log.textContent=`Download ${type.toUpperCase()} dimulai! ✅`;
+  } catch(e){
+    log.textContent="Error: API TikTok mungkin sedang down";
+  }
+}
+</script>
 </body>
 </html>
