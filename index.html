@@ -1,53 +1,31 @@
 const api = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+if(!data?.data?.play){
+  log.textContent = "Video tidak ditemukan!";
+  return;
+}
+
+const a = document.createElement("a");
+a.href = data.data.play;
+a.download = "tiktok.mp4";
+a.click();
+
+log.textContent = "Download dimulai!";
 <!doctype html>
 <html lang="id">
 <head>
 <meta charset="utf-8">
 <title>TikTok Downloader</title>
 <style>
-body {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 40px auto;
-  text-align: center;
-  background: linear-gradient(135deg, #ffdee9 0%, #b5fffc 100%);
-  padding: 20px;
-  border-radius: 20px;
-}
-h2 {
-  color: #333;
-  margin-bottom: 20px;
-}
-input {
-  width: 80%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 2px solid #555;
-  font-size: 16px;
-}
-button {
-  margin-top: 15px;
-  padding: 12px 20px;
-  background: #ff4d6d;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  color: white;
-  cursor: pointer;
-}
-button:hover {
-  background: #ff6f8f;
-}
-#log {
-  margin-top: 20px;
-  font-weight: bold;
-}
+body { font-family: Arial; max-width:600px; margin:40px auto; text-align:center; background:linear-gradient(135deg,#ffdee9 0%,#b5fffc 100%); padding:20px; border-radius:20px;}
+h2 { color:#333; margin-bottom:20px;}
+input { width:80%; padding:12px; border-radius:10px; border:2px solid #555; font-size:16px;}
+button { margin-top:15px; padding:12px 20px; background:#ff4d6d; border:none; border-radius:10px; font-size:16px; color:white; cursor:pointer;}
+button:hover { background:#ff6f8f; }
+#log { margin-top:20px; font-weight:bold;}
 </style>
 </head>
-
 <body>
 <h2>TikTok Downloader 🎵</h2>
-
 <input id="url" placeholder="Tempel URL TikTok..." />
 <br>
 <button id="go">Download</button>
@@ -59,33 +37,32 @@ document.getElementById("go").onclick = async () => {
   const log = document.getElementById("log");
 
   if(!url){
-    log.textContent = "URL tidak boleh kosong!";
+    log.textContent="URL tidak boleh kosong!";
     return;
   }
 
-  log.textContent = "Memproses...";
+  log.textContent="Memproses...";
 
   try {
-    const api = `https://tikfast.net/api?url=${encodeURIComponent(url)}`;
+    const api = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
     const r = await fetch(api);
     const data = await r.json();
 
-    if(!data?.video){
-      log.textContent = "Video tidak ditemukan!";
+    if(!data?.data?.play){
+      log.textContent="Video tidak ditemukan!";
       return;
     }
 
     const a = document.createElement("a");
-    a.href = data.video;
-    a.download = "tiktok.mp4";
+    a.href = data.data.play;
+    a.download="tiktok.mp4";
     a.click();
 
-    log.textContent = "Download dimulai!";
+    log.textContent="Download dimulai!";
   } catch(e){
-    log.textContent = "Error: " + e.message;
+    log.textContent="Gagal fetch API (CORS/API down)";
   }
 };
 </script>
-
 </body>
 </html>
