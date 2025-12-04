@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<title>TikTok Downloader 🎵</title>
+<title>TikTok & Instagram Reels Downloader</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {
@@ -47,24 +47,23 @@ button {
   cursor:pointer;
   transition:0.3s;
 }
-button.video { background:#ff4d6d; color:#fff; }
-button.video:hover { background:#ff6f8f; }
-button.audio { background:#4da6ff; color:#fff; }
-button.audio:hover { background:#7fcfff; }
-#log {
-  margin-top:15px;
-  font-weight:bold;
-  min-height:20px;
-}
+button.tiktok-video { background:#ff4d6d; color:#fff; }
+button.tiktok-video:hover { background:#ff6f8f; }
+button.tiktok-audio { background:#4da6ff; color:#fff; }
+button.tiktok-audio:hover { background:#7fcfff; }
+button.ig-video { background:#f7b500; color:#111; }
+button.ig-video:hover { background:#ffd633; }
+#log { margin-top:15px; font-weight:bold; min-height:20px; }
 </style>
 </head>
 <body>
 <div class="container">
-<h2>TikTok Downloader</h2>
-<input id="url" placeholder="Tempel URL TikTok (short/long)" />
+<h2>Downloader TikTok & Instagram 🎵</h2>
+<input id="url" placeholder="Tempel URL TikTok / IG Reels..." />
 <br>
-<button class="video" onclick="download('video')">Download Video MP4</button>
-<button class="audio" onclick="download('audio')">Download Audio MP3</button>
+<button class="tiktok-video" onclick="download('tiktok-video')">Download TikTok Video</button>
+<button class="tiktok-audio" onclick="download('tiktok-audio')">Download TikTok Audio MP3</button>
+<button class="ig-video" onclick="download('ig-video')">Download IG Reels Video</button>
 <div id="log"></div>
 </div>
 
@@ -77,25 +76,43 @@ async function download(type){
   log.textContent="Memproses...";
 
   try {
-    const api = "https://www.tikwm.com/api/?url=" + encodeURIComponent(url);
-    const res = await fetch(api);
-    const data = await res.json();
+    let api = "";
+    let link = "";
+    let filename = "";
 
-    if(!data?.data?.play){ log.textContent="Gagal mengambil video!"; return; }
+    if(type === 'tiktok-video' || type==='tiktok-audio'){
+      api = "https://www.tikwm.com/api/?url=" + encodeURIComponent(url);
+      const res = await fetch(api);
+      const data = await res.json();
 
-    let link = (type==='video') ? data.data.play : data.data.music;
-    let filename = (type==='video') ? "tiktok.mp4" : "tiktok.mp3";
+      if(!data?.data?.play){ log.textContent="Video TikTok tidak ditemukan!"; return; }
 
-    if(!link){ log.textContent=`${type.toUpperCase()} tidak tersedia`; return; }
+      if(type==='tiktok-video'){ link = data.data.play; filename="tiktok.mp4"; }
+      else{ link = data.data.music; filename="tiktok.mp3"; }
+
+    } else if(type==='ig-video'){
+      // API publik IG Reels
+      api = "https://www.instadlapi.com/api/reel?url=" + encodeURIComponent(url);
+      const res = await fetch(api);
+      const data = await res.json();
+
+      if(!data?.video){ log.textContent="Video IG Reels tidak ditemukan!"; return; }
+
+      link = data.video;
+      filename = "ig-reels.mp4";
+    }
+
+    if(!link){ log.textContent="File tidak tersedia"; return; }
 
     const a = document.createElement("a");
     a.href = link;
     a.download = filename;
     a.click();
 
-    log.textContent=`Download ${type.toUpperCase()} dimulai! ✅`;
+    log.textContent=`Download ${filename} dimulai! ✅`;
+
   } catch(e){
-    log.textContent="Error: API TikTok mungkin sedang down";
+    log.textContent="Gagal fetch API (CORS/API mungkin down)";
   }
 }
 </script>
